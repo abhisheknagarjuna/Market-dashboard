@@ -1,28 +1,4 @@
-library(shiny)
-library(ggplot2)
-library(shinydashboard)
-library(dplyr)
-
-#data$Date<- strptime(data$Date,"%Y/%m/%d %H:%M:%S")
-
-
-
-#******************************************************************************************
-
-dashboardPage(
-  
-  dashboardHeader(title = "Market Outlook Dashboard"),
-  
-  dashboardSidebar(
-    sidebarMenu(
-      # menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard"),badgeLabel = "WIP", badgeColor = "green"),
-      #menuItem("Line Plots", tabName = "Line Plots", icon = icon("th")),
-      menuItem("Momentum", tabName = "momentum", icon = icon("th")),
-      menuItem("Breadth Plots", tabName = "Breadth", icon = icon("th")),
-      menuItem("Sentiment Plots", tabName = "sentiment", icon = icon("th"))
-    )),
-  
-  dashboardBody(
+body <-  dashboardBody(
     
     tabItems(
       #       #*****************************************  
@@ -30,43 +6,58 @@ dashboardPage(
       tabItem( 
         tabName = "momentum",
         fluidRow(
-        box(
-          title = "TRIN",status = "success", solidHeader = TRUE,width = 10, collapsible = TRUE,
-          #                 valueBoxOutput("vehicleHealthDate"),
-          #                 valueBoxOutput("statusBox"),
-          #                 valueBoxOutput("EngineOilBox"),
-          #                 infoBox(
-          #                   "OEE","35%",icon = icon("thumbs-o-up"),
-          #                   color = "yellow"
-          #                 ),
-          box(plotOutput("trinplot"),height = 260)
-
+        column(width = 2,
+               dateInput("plotsDateFrom"," From Date", value="2014-01-01")
         ),
-        box(
-        title = "AD Line",status = "success", solidHeader = TRUE,width = 10, collapsible = TRUE,
-        #                 valueBoxOutput("vehicleHealthDate"),
-        #                 valueBoxOutput("statusBox"),
-        #                 valueBoxOutput("EngineOilBox"),
-        #                 infoBox(
-        #                   "OEE","35%",icon = icon("thumbs-o-up"),
-        #                   color = "yellow"
-        #                 ),
-        box(plotOutput("trinplot"),height = 260)
         
+        column(width = 2,
+               dateInput("plotsDateTo"," To Date", value="2015-12-31")
         ),
-        box(
-        title = "High-Low Index",status = "success", solidHeader = TRUE,width = 10, collapsible = TRUE,
-        #                 valueBoxOutput("vehicleHealthDate"),
-        #                 valueBoxOutput("statusBox"),
-        #                 valueBoxOutput("EngineOilBox"),
-        #                 infoBox(
-        #                   "OEE","35%",icon = icon("thumbs-o-up"),
-        #                   color = "yellow"
-        #                 ),
-        box(plotOutput("trinplot"),height = 260)
-        
-      )
+        fluidRow(
+                 dygraphOutput("trinplot")   ,
+                 textOutput("text1")
         )
+          
+          
+
+        )
+        
+        
+#           title = "TRIN",status = "success", solidHeader = TRUE,width = 10, collapsible = TRUE,
+#           #                 valueBoxOutput("vehicleHealthDate"),
+#           #                 valueBoxOutput("statusBox"),
+#           #                 valueBoxOutput("EngineOilBox"),
+#           #                 infoBox(
+#           #                   "OEE","35%",icon = icon("thumbs-o-up"),
+#           #                   color = "yellow"
+#           #                 ),
+
+      
+#         box(
+#         title = "AD Line",status = "success", solidHeader = TRUE,width = 10, collapsible = TRUE,
+#         #                 valueBoxOutput("vehicleHealthDate"),
+#         #                 valueBoxOutput("statusBox"),
+#         #                 valueBoxOutput("EngineOilBox"),
+#         #                 infoBox(
+#         #                   "OEE","35%",icon = icon("thumbs-o-up"),
+#         #                   color = "yellow"
+#         #                 ),
+#         box(plotOutput("trinplot"),height = 260)
+#         
+#         ),
+#         box(
+#         title = "High-Low Index",status = "success", solidHeader = TRUE,width = 10, collapsible = TRUE,
+#         #                 valueBoxOutput("vehicleHealthDate"),
+#         #                 valueBoxOutput("statusBox"),
+#         #                 valueBoxOutput("EngineOilBox"),
+#         #                 infoBox(
+#         #                   "OEE","35%",icon = icon("thumbs-o-up"),
+#         #                   color = "yellow"
+#         #                 ),
+#         box(plotOutput("trinplot"),height = 260)
+#         
+#       )
+        
 
       ),
 tabItem( 
@@ -115,4 +106,30 @@ tabItem(
 
     )
   )
+dbHeader <- dashboardHeader()
+
+dbHeader$children[[2]]$children[[1]] <- tags$p(" ")
+
+customHtml <- withTags({
+  h3(style="margin-top: 0px;padding-top:10px;color:white;text-align: center;","Market Outlook Dashboard")
+})
+# tags$a(style='color:white;',href='http://www.infosys.com','Infosys Chiller Analytics Solution')
+dbHeader$children[[3]]$children[[3]] <- customHtml
+
+shinyUI(
+dashboardPage(
+  
+  dbHeader,
+  
+  dashboardSidebar(
+    sidebarMenu(
+      # menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard"),badgeLabel = "WIP", badgeColor = "green"),
+      #menuItem("Line Plots", tabName = "Line Plots", icon = icon("th")),
+      menuItem("Momentum", tabName = "momentum", icon = icon("th")),
+      menuItem("Breadth Plots", tabName = "Breadth", icon = icon("th")),
+      menuItem("Sentiment Plots", tabName = "sentiment", icon = icon("th"))
+    )),
+  body,
+  title = "FFFF"
+)
 )
