@@ -1,0 +1,75 @@
+library(shiny)
+library(shinydashboard)
+library(reshape2)
+#library(DT)
+library(dplyr)
+library(dygraphs)
+library(xts)
+library(stringi)
+library(ggplot2)
+library(TTR)
+
+setwd("D:/Stock Analytics")
+data = read.csv("sandp_complete_data.csv",stringsAsFactors=F)
+str(data)
+
+data$time = strptime(data$time, format= "%m/%d/%Y")
+
+data =  subset(data, as.Date(time) > as.Date("2000-01-01") )
+
+#TRIN
+data$trin = (data$Adv/data$Dec)/(data$Adv.Vol/data$Dec.Vol)
+
+#A/D LINE
+data$netadv = data$Adv - data$Dec
+head(data$netadv)
+data$netadv[is.na(data$netadv)] <-0
+
+data$adline = c(data$netadv[1],rep(NA,(nrow(data)-1)))
+
+
+data$adline[1] = data$netadv[1] 
+
+for(i in 2:nrow(data)){
+data$adline[i] = data$adline[i-1] + data$netadv[i]
+}
+data$adline
+
+#A/D VOLUME LINE
+data$netadv_vol = data$ Adv.Vol - data$Dec.Vol
+head(data$netadv_vol)
+data$netadv_vol[is.na(data$netadv_vol)] <-0
+
+data$adline_vol = c(data$netadv_vol[1],rep(NA,(nrow(data)-1)))
+#data$adline_vol[1] = data$netadv_vol[1] 
+
+for(i in 2:nrow(data)){
+  data$adline_vol[i] = data$adline_vol[i-1] + data$netadv_vol[i]
+}
+data$adline_vol
+
+#McClean Oscillator
+data$rana = (data$Adv - data$Dec)/(data$Adv + data$Dec)
+data$rana[is.na(data$rana)] <-0
+data$EMA_19 = EMA(data$rana, 19)
+data$EMA_39 = EMA(data$rana, 39)
+data$mclean = data$EMA_19 - data$EMA_39
+
+#Mcclean Summation index
+data$mclean[is.na(data$mclean)] <-0
+data$mclean_sum = cumsum(data$mclean)
+
+library(xts)
+
+    finalData <- xts(data$trin, as.POSIXct(data$time, format="%m/%d/%Y"))
+    #      finalData <- xts(plotData[,parameters], as.POSIXct(plotData$Time, format="%d-%m-%Y %H:%M"), tz = TZ)      
+    dygraph(finalData, main = "", xlab = "Date") %>% 
+      #       dygraph(finalData, main = "Chiller Playback", xlab = "Timestamp" ,height = "1000px") %>%
+      #           dySeries(parametersY2Axis, axis = 'y2') %>%
+      dyRangeSelector() 
+
+
+
+
+write.table(data, file = "sandp500_18var_data.csv",sep=",",row.names=F)
+
