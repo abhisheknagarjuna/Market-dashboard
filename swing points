@@ -1,0 +1,30 @@
+setwd("D:/Stock Analytics")
+
+spyw = read.csv("spy weekly.csv",stringsAsFactors = F)
+spyw$Date = strptime(spyw$Date,format = "%Y-%m-%d")
+library(xts)
+spywts = xts(spyw$Close, order.by = spyw$Date)
+plot(spywts)
+
+
+sw = rep(0,length(spywts))
+spywts = spyw$Close
+for(i in 2:(length(spywts)-1)){
+  if(((spywts[i] > spywts[i-1] & spywts[i] > spywts[i+1]) | 
+     (spywts[i] < spywts[i-1] & spywts[i] < spywts[i+1])) &
+     (((spywts[i] - spywts[i-1])/spywts[i-1]) > 0.02 | ((spywts[i+1] - spywts[i])/spywts[i]) > 0.02)){
+    sw[i] = spywts[i]
+  }
+}
+plot(spywts)
+lines(spywts)
+lines(sw,col="blue")
+plot(sw)
+
+library(dygraphs)
+ts = xts(spyw$Close, order.by = spyw$Date)
+tssw = xts(sw, order.by = spyw$Date)
+lungDeaths <- cbind(ts, tssw)
+dygraph(lungDeaths, main = "SPY") %>%
+  dyOptions() %>%
+  dyRangeSelector()
